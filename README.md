@@ -2,5 +2,7 @@
 my starter template for making 3d pixel art in godot
 
 includes:
-- Fully featured cel shader
-- Quick setup for 3D pixel art workflow
+- fully featured cel shader
+- color quantizer & ditherer
+- simple camera movement
+- quick setup scene for my 3D pixel art workflow
