@@ -1,0 +1,140 @@
+[gd_scene load_steps=16 format=3 uid="uid://dqshp8dwlhlmf"]
+
+[ext_resource type="Shader" uid="uid://s4g1yti4gfmi" path="res://shaders/pixel_art_upscale.gdshader" id="1_ei5d3"]
+[ext_resource type="Script" uid="uid://dbqrp03wr1s4h" path="res://scripts/camera/pixel_container.gd" id="2_1sl2q"]
+[ext_resource type="Script" uid="uid://d2egf7oavl2wf" path="res://scripts/camera/camera_3d_texel_snapped.gd" id="2_uxr40"]
+[ext_resource type="Script" uid="uid://c536o8luwuan1" path="res://scripts/camera/camera_movement.gd" id="3_p8kx1"]
+[ext_resource type="Script" uid="uid://c3fthdcaxp1q" path="res://shaders/compositor/dither/dither_compositor.gd" id="3_wkpiw"]
+[ext_resource type="Texture2D" uid="uid://txdh04j0tgj2" path="res://assets/textures/t_prototype_d.png" id="5_e4o0e"]
+[ext_resource type="Texture2D" uid="uid://b3v25n7tmkf3x" path="res://assets/textures/t_prototype_n.png" id="6_a8moi"]
+[ext_resource type="Shader" uid="uid://ba2470j5l0c4s" path="res://shaders/cel.gdshader" id="8_p8kx1"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_uxr40"]
+shader = ExtResource("1_ei5d3")
+
+[sub_resource type="CompositorEffect" id="CompositorEffect_wkpiw"]
+resource_local_to_scene = false
+resource_name = ""
+enabled = true
+effect_callback_type = 4
+needs_motion_vectors = false
+needs_normal_roughness = false
+script = ExtResource("3_wkpiw")
+spread = 0.01
+colors = 256
+metadata/_custom_type_script = "uid://c3fthdcaxp1q"
+
+[sub_resource type="Compositor" id="Compositor_a8moi"]
+compositor_effects = Array[CompositorEffect]([SubResource("CompositorEffect_wkpiw")])
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1sl2q"]
+
+[sub_resource type="Sky" id="Sky_wkpiw"]
+sky_material = SubResource("ProceduralSkyMaterial_1sl2q")
+
+[sub_resource type="Environment" id="Environment_e4o0e"]
+sky = SubResource("Sky_wkpiw")
+tonemap_mode = 4
+fog_density = 0.0
+fog_height = -0.5
+fog_height_density = 0.05
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ffqna"]
+render_priority = 0
+shader = ExtResource("8_p8kx1")
+shader_parameter/tint = Color(0.42, 0.42, 0.42, 1)
+shader_parameter/albedo_tex = ExtResource("5_e4o0e")
+shader_parameter/normal_strength = 0.25
+shader_parameter/normal_tex = ExtResource("6_a8moi")
+shader_parameter/_scale = Vector3(1, 1, 1)
+shader_parameter/_offset = Vector3(0, 0, 0)
+shader_parameter/use_triplanar = true
+shader_parameter/use_fractal = false
+shader_parameter/fractal_min_scale = 0.01
+shader_parameter/fractal_scale = 1.0
+shader_parameter/fractal_min_distance = 10.0
+shader_parameter/steps = 2
+shader_parameter/wrap = 0.0
+shader_parameter/steepness = 1.0
+shader_parameter/use_attenuation = false
+shader_parameter/use_specular = true
+shader_parameter/specular_smoothness = 32.0
+shader_parameter/specular_strength = 1.0
+shader_parameter/use_rim = false
+shader_parameter/rim_color = Color(1, 1, 1, 1)
+shader_parameter/rim_width = 4.0
+shader_parameter/step_rim = true
+shader_parameter/rim_threshold = 0.5
+shader_parameter/use_outline = true
+shader_parameter/outline_color = Color(0.144531, 0.144531, 0.144531, 1)
+shader_parameter/depth_threshold = 0.25
+shader_parameter/depth_normal_threshold = 0.5
+shader_parameter/depth_normal_threshold_scale = 2.0
+shader_parameter/edge_color = Color(0.109375, 0.109375, 0.109375, 1)
+shader_parameter/convex_threshold = 0.5
+shader_parameter/convex_normal_threshold = 0.5
+shader_parameter/convex_normal_threshold_scale = 2.0
+
+[node name="Template" type="Node3D"]
+
+[node name="Container" type="Control" parent="."]
+texture_filter = 1
+material = SubResource("ShaderMaterial_uxr40")
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+focus_mode = 1
+mouse_filter = 1
+script = ExtResource("2_1sl2q")
+metadata/_custom_type_script = "uid://dbqrp03wr1s4h"
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="Container"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+stretch_shrink = 4
+
+[node name="Viewport" type="SubViewport" parent="Container/SubViewportContainer"]
+handle_input_locally = false
+canvas_item_default_texture_filter = 0
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="Anchor" type="Node3D" parent="Container/SubViewportContainer/Viewport"]
+transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 0, 0, 0)
+script = ExtResource("3_p8kx1")
+
+[node name="Pivot" type="Node3D" parent="Container/SubViewportContainer/Viewport/Anchor"]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 0, 0)
+
+[node name="Camera" type="Camera3D" parent="Container/SubViewportContainer/Viewport/Anchor/Pivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 20)
+compositor = SubResource("Compositor_a8moi")
+projection = 1
+current = true
+size = 10.0
+far = 50.0
+script = ExtResource("2_uxr40")
+snap_objects = false
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.906308, 0.298836, -0.298836, 0, 0.707107, 0.707107, 0.422618, -0.640856, 0.640856, 0, 10, 0)
+
+[node name="WE" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_e4o0e")
+
+[node name="Ground" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -8, 0)
+cast_shadow = 0
+size = Vector3(16, 16, 16)
+material = SubResource("ShaderMaterial_ffqna")
